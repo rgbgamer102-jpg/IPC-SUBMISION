@@ -1,0 +1,19 @@
+{
+  "name": "Cooking the Indian Film Industry",
+  "short_name": "IFI Kitchen",
+  "description": "A satirical cooking simulator about the Indian film industry.",
+  "start_url": "./work.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#11161c",
+  "theme_color": "#11161c",
+  "icons": [
+    {
+      "src": "./assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
