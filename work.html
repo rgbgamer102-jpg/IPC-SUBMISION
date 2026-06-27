@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Cooking the Indian Film Industry</title>
+<meta name="theme-color" content="#11161c" />
+<meta name="description" content="A satirical cooking simulator about the Indian film industry." />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div id="boot">
+  <div class="boot-pot">🍲</div>
+  <h1>Cooking the<br>Indian Film Industry</h1>
+  <div class="tag">"One wrong ingredient can burn an entire industry."</div>
+  <div class="sub">Indian Film Industry Committee · Freeze date 25 May 2026</div>
+  <button class="start-btn" onclick="boot()">Enter the Kitchen</button>
+  <div class="boot-credits">Six ingredients are stocked. The rest are locked in the pantry — burn recipes and fuse stakeholders to discover them. The Michelin Inspector is already on their way. There is a hidden dish no committee in history has ever plated.</div>
+</div>
+
+<div id="top" style="display:none">
+  <div class="logo">🍲 IFI Kitchen</div>
+  <div class="crumb">Head Chef Console</div>
+  <div class="spacer"></div>
+  <div class="chip" id="ingChip">6 / 16 ingredients</div>
+  <div class="chip" id="recipesChip">0 / 9 dishes</div>
+  <button class="ghost-btn" id="muteBtn" onclick="toggleMute()">🔊 Sound on</button>
+  <button class="ghost-btn" onclick="openBook()">📖 Recipes</button>
+  <button class="ghost-btn" onclick="openBrief()">⚖️ Agenda</button>
+</div>
+
+<div id="stage" style="display:none">
+  <div class="panel" id="pantry">
+    <div class="panel-head"><span class="dot"></span><h3>The Pantry</h3><span class="kicker" id="pantryCount" style="margin-left:auto"></span></div>
+    <div class="scroll" id="pantryScroll"></div>
+    <div class="fuse-hint" id="fuseHint">🧪 <b>Fusion:</b> some stakeholders react when cooked together. Drop the right pair in the pot and watch the pantry grow.</div>
+  </div>
+
+  <div class="panel" id="kitchen">
+    <div class="panel-head"><span class="dot"></span><h3>The Pot</h3><span class="kicker" style="margin-left:auto" id="potCount">empty</span></div>
+    <div class="stove">
+      <div class="recipe-name" id="liveRecipe">Awaiting Ingredients</div>
+      <div class="recipe-sub" id="liveRecipeSub">drag stakeholders into the pot</div>
+      <div class="potwrap">
+        <canvas id="fx"></canvas>
+        <div id="potzone">
+          <svg class="pot-svg" id="potSvg" viewBox="0 0 260 240">
+            <g id="flameGroup">
+              <path class="flame" id="flame1" d="M130 230 C100 200 108 175 124 160 C120 185 138 188 138 168 C156 182 164 205 148 226 Z" fill="#e0492f"/>
+              <path class="flame" id="flame2" d="M130 230 C112 208 116 188 128 176 C126 194 140 196 140 182 C152 192 156 210 144 226 Z" fill="#f6a23a"/>
+              <path class="flame" id="flame3" d="M130 228 C122 214 124 200 131 192 C130 204 138 205 139 196 C146 204 147 216 138 224 Z" fill="#ffd86b"/>
+            </g>
+            <ellipse cx="130" cy="150" rx="92" ry="20" fill="#0c1116"/>
+            <rect x="38" y="92" width="184" height="62" rx="14" fill="url(#potgrad)"/>
+            <ellipse cx="130" cy="92" rx="92" ry="22" fill="#2a3742"/>
+            <ellipse id="broth" cx="130" cy="92" rx="80" ry="17" fill="#1c6f64"/>
+            <ellipse id="brothShine" cx="115" cy="88" rx="30" ry="6" fill="rgba(255,255,255,.12)"/>
+            <rect x="14" y="104" width="26" height="11" rx="5" fill="#394a59"/>
+            <rect x="220" y="104" width="26" height="11" rx="5" fill="#394a59"/>
+            <defs><linearGradient id="potgrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46586a"/><stop offset="1" stop-color="#222e39"/></linearGradient></defs>
+          </svg>
+          <div class="drop-hint" id="dropHint">Drop ingredients <b>here</b></div>
+        </div>
+      </div>
+      <div class="in-pot" id="inPot"></div>
+      <div class="controls">
+        <div class="ctl">🔥 Heat<input type="range" min="0" max="100" value="45" class="heat-slider" id="heat" /></div>
+        <button class="clr-btn" onclick="emptyPot()">Empty Pot</button>
+        <button class="cook-btn" onclick="serve()">Serve the Dish ▸</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="meters">
+    <div class="panel-head"><span class="dot"></span><h3>The Kitchen Dials</h3></div>
+    <div class="gauges">
+      <div class="gauge"><div class="g-ico">🔥</div><div class="g-val" id="gHeat">45</div><div class="g-lab">Heat</div></div>
+      <div class="gauge"><div class="g-ico">🏛️</div><div class="g-val" id="gPol">50</div><div class="g-lab">Pressure</div></div>
+      <div class="gauge"><div class="g-ico">⚖️</div><div class="g-val" id="gLegal">50</div><div class="g-lab">Legal °C</div></div>
+      <div class="gauge"><div class="g-ico">📣</div><div class="g-val" id="gMedia">40</div><div class="g-lab">Noise</div></div>
+    </div>
+    <div class="scroll" id="metersScroll"></div>
+    <div id="cctv">
+      <div class="cctv-head"><span class="rec"></span>Kitchen CCTV · Live</div>
+      <div class="log" id="cctvLog"></div>
+    </div>
+  </div>
+</div>
+
+<div id="ghost"></div>
+<div id="tip"></div>
+<div id="toasts"></div>
+<div id="host"><div class="avatar" id="hostAv">👨‍🍳</div><div class="bubble"><div class="who" id="hostWho">The Host</div><div id="hostMsg"></div></div></div>
+<div id="freezeflash"></div>
+<div id="goldflash"></div>
+<div id="smokeflash"></div>
+
+<div class="modal-bg" id="resultBg"><div class="modal">
+  <div class="modal-head"><h2>🍽️ The Critic's Table</h2><button class="close" onclick="closeModal('resultBg')">✕</button></div>
+  <div class="modal-body" id="resultBody"></div>
+</div></div>
+
+<div class="modal-bg" id="bookBg"><div class="modal">
+  <div class="modal-head"><h2>📖 The Recipe Book</h2><button class="close" onclick="closeModal('bookBg')">✕</button></div>
+  <div class="modal-body"><div class="progress-line" id="bookProgress"></div><div class="rb-grid" id="bookGrid"></div></div>
+</div></div>
+
+<div class="modal-bg" id="briefBg"><div class="modal">
+  <div class="modal-head"><h2>⚖️ The Agenda On The Stove</h2><button class="close" onclick="closeModal('briefBg')">✕</button></div>
+  <div class="modal-body" id="briefBody"></div>
+</div></div>
+
+<div class="modal-bg" id="crisisBg"><div class="modal">
+  <div class="modal-head"><h2>🚨 Kitchen Crisis</h2></div>
+  <div class="modal-body" id="crisisBody"></div>
+</div></div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>
